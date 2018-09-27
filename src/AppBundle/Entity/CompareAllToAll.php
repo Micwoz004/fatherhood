@@ -84,10 +84,7 @@ class CompareAllToAll
      */
     public function setDifferentAllelUids($differentAllelUids)
     {
-        //if ($this->isJson($differentAllelUids))
-        //{
-            $this->differentAllelUids = $differentAllelUids;
-        //}
+        $this->differentAllelUids = $differentAllelUids;
     }
 
     /**
@@ -96,11 +93,6 @@ class CompareAllToAll
     public function getId()
     {
         return $this->id;
-    }
-
-    private function isJson($string)
-    {
-        return !preg_match('/[^,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\\t]/', preg_replace('/"(\\.|[^"\\\\])*"/', '', $string));
     }
 
 }

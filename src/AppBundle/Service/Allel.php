@@ -23,22 +23,22 @@ class Allel
         $this->allelName = $allelName;
     }
 
-    public function getAllelName()
+    public function getAllelName() : string
     {
         return $this->allelName;
     }
 
-    public function getAllelFirstValue()
+    public function getAllelFirstValue() : string
     {
         return $this->allelFirstValue;
     }
 
-    public function getAllelSecondValue()
+    public function getAllelSecondValue() : string
     {
         return $this->allelSecondValue;
     }
 
-    public function getAllelArrayCollection()
+    public function getAllelArrayCollection() : array
     {
         return $this->allelArrayCollection;
     }

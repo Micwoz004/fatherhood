@@ -9,29 +9,40 @@
             <div class="alert alert-danger">{{ message }}</div>
         {% endfor %}
     {% endif %}
-    <div class="table-responsive">
-        <table id="table" class="table table-bordered table-striped" style="white-space: nowrap">
-            <thead>
-                <tr>
-                    <th>Lp.</th>
-                    <th>UID</th>
-                    <th>Potencjalne pokrewieństwo ( x <= 3 )</th>
-                    <th>Szczegóły</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for key, cd in comparedData %}
-                    <tr>
-                        <td>{{ key+1 }}.</td>
-                        <td>{{ cd.uid }}</td>
-                        <td>{{ cd.numberOfRelationship }}</td>
-                        <td>
-                            <button class="btn btn-default" data-id="{{ cd.id }}">Szczegóły</button>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <div class="row">
+        <div class="col-md-12 m-b-md">
+            <button id="recalculate-results" class="btn btn-primary">Przelicz ponownie</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="table" class="table table-bordered table-striped" style="white-space: nowrap">
+                    <thead>
+                        <tr>
+                            <th>Lp.</th>
+                            <th>UID</th>
+                            <th>Potencjalne pokrewieństwo ( x <= 3 )</th>
+                            <th>Szczegóły</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, cd in comparedData %}
+                            <tr>
+                                <td>{{ key+1 }}.</td>
+                                <td>{{ cd.uid }}</td>
+                                <td>{{ cd.numberOfRelationship }}</td>
+                                <td>
+                                    <button class="btn btn-default" data-id="{{ cd.id }}">Szczegóły</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -42,6 +53,36 @@
                 ordering: true,
                 searching: true
             } );
+
+            $('#recalculate-results').on( 'click', areYouSure );
         });
+
+        function areYouSure()
+        {
+            var userIsSure = confirm("Czy jesteś pewien, że chcesz ponownie przeliczyć wyniki? Może to zająć dużo czasu.");
+
+            if (userIsSure) {
+                recalculateAgainAjaxCallback();
+            }
+        }
+
+        function recalculateAgainAjaxCallback()
+        {
+            $.ajax({
+                method: 'POST',
+                url: '{{ path('_compare_all_to_all_again') }}',
+                beforeSend: function() { $('#wait').show(); },
+                complete: function() { $('#wait').hide(); }
+            }).done(function(data) {
+
+                if (data.success === false)
+                {
+                    alert('Podczas przeliczania wystąpił błąd. Strona zostanie za chwilę odświeżona. Error: ' + data.message );
+                }
+console.log(data);
+                //location.reload();
+            });
+        }
+
     </script>
 {% endblock %}

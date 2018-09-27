@@ -21,12 +21,12 @@ class WidgetBuilder {
         return $rows;
     }
 
-    public function dbTableThead(Array $db_schema)
+    public function dbTableThead(Array $db_schema) : string
     {
         $columns = '';
 
         foreach($db_schema as $key => $row) {
-            $columns = '<tr><th>Lp.</th><th>UID</th><th>Nr sprawy</th><th>LAB</th><th>Rola w sprawie</th><th>Nr próbki</th><th>'.implode('</th><th>', $db_schema).'</th><th>Uwagi</th></tr>';
+            $columns = '<tr><th>Lp.</th><th>UID</th><th>Nr sprawy</th><th>LAB</th><th>Rola w sprawie</th><th>Nr próbki</th><th>'.implode('</th><th>', $row).'</th><th>Uwagi</th></tr>';
         }
 
         return $columns;

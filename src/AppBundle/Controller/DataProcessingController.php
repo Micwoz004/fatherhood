@@ -11,22 +11,33 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\CompareAllToAll;
 use AppBundle\Entity\CompareMPD;
 use AppBundle\Service\Comparison;
-use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DataProcessingController extends Controller
 {
 
-    /**
-     * @Route("/dataProcessing/compare_all_to_all", name="_compare_all_to_all")
-     */
-    public function compareAllToAllAction()
+    private $em;
+    private $dbConnection;
+
+    public function __construct(EntityManagerInterface $entityManager, Connection $connection)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $comparedData = $entityManager->getRepository('AppBundle\Entity\CompareAllToAll')->findAll();
+        $this->em = $entityManager;
+        $this->dbConnection = $connection;
+    }
+
+    /**
+     * @Route("/data-processing/compare-all-to-all", name="_compare_all_to_all")
+     */
+    public function compareAllToAllView() : Response
+    {
+        $comparedData = $this->em->getRepository('AppBundle\Entity\CompareAllToAll')->findAll();
 
         return $this->render(
             '/table/compareAllToAllDetails.html.twig',
@@ -37,22 +48,24 @@ class DataProcessingController extends Controller
     }
 
     /**
-     * @Route("/dataProcessing/compare_all_to_all_ajax", name="_compare_all_to_all_ajax")
+     * @Route("/data-processing/compare-all-to-all-again", name="_compare_all_to_all_again")
      */
-    public function compareAllToAllAjax() {
-
-        $db = $this->get('database_connection');
-
+    public function compareAllToAllAgain(Request $request) : JsonResponse
+    {
         try {
 
-            $columnSchema = $db->executeQuery('SELECT * FROM column_name_schema')->fetch();
-            $dbRecords = $db->executeQuery('SELECT * FROM imported_data')->fetchAll();
+            if (!$request->isMethod('POST')) {
+                throw new \Exception('This is not an AJAX request!', 403);
+            }
+
+            $columnSchema = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+            $dbRecords = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
 
             $comparison = new Comparison($columnSchema);
             $comparedRecords = $comparison->compareAllToAllDbRecords($dbRecords);
 
-            $entityManager = $this->getDoctrine()->getManager();
-            //$entityManager->getConnection()->beginTransaction();
+            $this->dbConnection->beginTransaction();
+            $this->dbConnection->exec('DELETE FROM compare_all_to_all');
 
             foreach($comparedRecords as $uid => $comparedRecord)
             {
@@ -61,30 +74,40 @@ class DataProcessingController extends Controller
                 $compareAllToAll->setNumberOfRelationship(count($comparedRecord['differenceAllelUids']));
                 $compareAllToAll->setDifferentAllelUids(json_encode($comparedRecord['differenceAllelUids']));
 
-                $entityManager->persist($compareAllToAll);
-                $entityManager->flush();
-                $entityManager->clear();
+                $this->em->persist($compareAllToAll);
+                $this->em->flush();
             }
 
-            //$entityManager->getConnection()->commit();
+            $this->dbConnection->commit();
 
-            return $this->redirect(
-                $this->generateUrl('_compare_all_to_all')
-             );
-    
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'code' => 200,
+                    'message' => ''
+                ]);
+
         } catch (\Exception $exception) {
-            //$entityManager->getConnection()->rollback();
-            throw new \Exception('Error: ' . $exception->getMessage());
+
+            if ($this->dbConnection->isTransactionActive()) {
+                $this->dbConnection->rollBack();
+            }
+
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage()
+                ]);
         }
     }
 
     /**
-     * @Route("/dataProcessing/compare_m_p_d", name="_compare_m_p_d")
+     * @Route("/data-processing/compare-m-p-d", name="_compare_m_p_d")
      */
-    public function compareMPDAction() {
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $comparedData = $entityManager->getRepository('AppBundle\Entity\CompareMPD')->findAll();
+    public function compareMPDAction() : Response
+    {
+        $comparedData = $this->em->getRepository('AppBundle\Entity\CompareMPD')->findAll();
 
         return $this->render(
             '/table/compareMDPDetails.html.twig',
@@ -95,21 +118,17 @@ class DataProcessingController extends Controller
     }
 
     /**
-     * @Route("/dataProcessing/compare_m_p_d_ajax", name="_compare_m_p_d_ajax")
+     * @Route("/data-processing/compare-m-p-d-again", name="_compare_m_p_d_again")
      */
-    public function compareMPDAjax() {
-        
-        $db = $this->get('database_connection');
+    public function compareMPDAgain() : RedirectResponse
+    {
 
         try {
-            $columnSchema = $db->executeQuery('SELECT * FROM column_name_schema')->fetch();
-            $dbRecords = $db->executeQuery('SELECT * FROM imported_data')->fetchAll();
+            $columnSchema = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+            $dbRecords = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
 
             $comparison = new Comparison($columnSchema);
             $comparedData = $comparison->compareMotherChildFather($dbRecords);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            //$entityManager->getConnection()->beginTransaction();
 
             foreach($comparedData as $caseNumber => $data)
             {
@@ -118,23 +137,18 @@ class DataProcessingController extends Controller
                 $compareMPD->setDifferentFatherAllelNames(json_encode($data['differentFatherAllelNames']));
                 $compareMPD->setIsMotherBiologicalParent(($data['isMotherBiologicalParent'] ? 1 : 0));
 
-                $entityManager->persist($compareMPD);
-                $entityManager->flush();
-                $entityManager->clear();
+                $this->em->persist($compareMPD);
+                $this->em->flush();
+                $this->em->clear();
             }
 
-            //$entityManager->getConnection()->commit();
-
-            return $this->redirect(
+            return $this->redirect
+            (
                 $this->generateUrl('_compare_m_p_d')
             );
 
         } catch (\Exception $exception) {
             throw new \Exception('Error: ' . $exception->getMessage());
         }
-
     }
-
-
-
 }

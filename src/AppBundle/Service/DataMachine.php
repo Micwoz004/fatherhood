@@ -12,14 +12,15 @@ class DataMachine
 {
     const PRIMARY_KEY_COLUMN_NAME = 'id';
     const COMMENTS_COLUMN_NAME = 'comments';
+
     private $dbColumnSchema;
 
-    public function __construct($dbColumnSchema)
+    public function __construct(Array $dbColumnSchema)
     {
         $this->dbColumnSchema = $dbColumnSchema;
     }
 
-    public function createAllelValueArray(Array $databaseRow)
+    public function createAllelValueArray(Array $databaseRow) : array
     {
         $createdArray = array();
 
@@ -39,7 +40,7 @@ class DataMachine
         return $createdArray;
     }
 
-    public function createCaseNumberRoleArray(Array $databaseRecords)
+    public function createCaseNumberRoleArray(Array $databaseRecords) : array
     {
         $CaseNumberRole = array();
 
@@ -51,7 +52,7 @@ class DataMachine
         return $CaseNumberRole;
     }
 
-    public function unsetEmptyColumns(Array $databaseRow)
+    public function unsetEmptyColumns(Array $databaseRow) : array
     {
         if ($this->isTwoDimensionalArray($databaseRow))
         {
@@ -63,7 +64,7 @@ class DataMachine
         }
     }
 
-    private function isTwoDimensionalArray(Array $databaseRow)
+    private function isTwoDimensionalArray(Array $databaseRow) : bool
     {
         if (!empty($databaseRow[0]) and is_array($databaseRow[0]))
         {
@@ -73,7 +74,7 @@ class DataMachine
         return false;
     }
 
-    private function iterateTwoDimensionalArrayAndUnset(Array $databaseRow)
+    private function iterateTwoDimensionalArrayAndUnset(Array $databaseRow) : array
     {
         foreach($databaseRow as $fKey => $firstDimensionRow)
         {
@@ -89,7 +90,7 @@ class DataMachine
         return $databaseRow;
     }
 
-    private function iterateOneDimensionalArrayAndUnset(Array $databaseRow)
+    private function iterateOneDimensionalArrayAndUnset(Array $databaseRow) : array
     {
         foreach ($databaseRow as $key => $record)
         {

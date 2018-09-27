@@ -11,6 +11,7 @@ namespace AppBundle\Service;
 class Comparison
 {
     const MAX_DIFFERENCE_COUNTER = 4;
+
     private $dbColumnSchema;
     private $dataMachine;
 
@@ -20,7 +21,8 @@ class Comparison
         $this->dataMachine = new DataMachine($dbColumnSchema);
     }
 
-    public function compareTwoRawDbRecords($firstRecord, $secondRecord) {
+    public function compareTwoRawDbRecords($firstRecord, $secondRecord)
+    {
         $iteration = 1;
         $differenceCounter = 0;
 
@@ -43,7 +45,8 @@ class Comparison
         return $differenceCounter;
     }
 
-    public function compareTwoPreparedDbRecords($firstRecord, $secondRecord) {
+    public function compareTwoPreparedDbRecords($firstRecord, $secondRecord)
+    {
         $differenceCounter = 0;
 
         foreach($firstRecord as $aKey => $allelValues) {
@@ -68,8 +71,10 @@ class Comparison
 
     private function isDifferenceWithinTwoAllelPairs(Allel $fistAllelObject, Allel $secondAllelObject)
     {
-        if (!in_array($fistAllelObject->getAllelFirstValue(), $secondAllelObject->getAllelArrayCollection()) and
-            !in_array($fistAllelObject->getAllelSecondValue(), $secondAllelObject->getAllelArrayCollection()))
+        if (
+            !in_array($fistAllelObject->getAllelFirstValue(), $secondAllelObject->getAllelArrayCollection()) and
+            !in_array($fistAllelObject->getAllelSecondValue(), $secondAllelObject->getAllelArrayCollection())
+        )
         {
             return true;
         }
@@ -115,7 +120,7 @@ class Comparison
         return $outputArray;
     }
 
-    private function doesRowHasThreeRoles(Array $caseNumberRole)
+    private function doesRowHasThreeRoles(Array $caseNumberRole) : bool
     {
         if ((!empty($caseNumberRole['M']) && !empty($caseNumberRole['D']) && !empty($caseNumberRole['P'])) && count($caseNumberRole) == 3)
         {
@@ -125,7 +130,7 @@ class Comparison
         return false;
     }
 
-    private function getDifferentFatherAllelName(Allel $childObject, Allel $motherObject, Allel $fatherObject)
+    private function getDifferentFatherAllelName(Allel $childObject, Allel $motherObject, Allel $fatherObject) : string
     {
         if ($this->isDifferenceWithinTwoAllelPairs($childObject, $motherObject))
         {
@@ -154,7 +159,7 @@ class Comparison
         return null;
     }
 
-    private function isOneOfParentAllelMatch($childAllelValue, Allel $parentObject)
+    private function isOneOfParentAllelMatch($childAllelValue, Allel $parentObject) : bool
     {
         if (in_array($childAllelValue, $parentObject->getAllelArrayCollection())) {
             return true;
@@ -163,7 +168,7 @@ class Comparison
         return false;
     }
 
-    public function compareAllToAllDbRecords(Array $dbRecords)
+    public function compareAllToAllDbRecords(Array $dbRecords) : array
     {
         $outputArray = array();
 
@@ -193,7 +198,8 @@ class Comparison
         return $outputArray;
     }
 
-    public function isMotherBiologicalParent(Array $caseDbRow) {
+    public function isMotherBiologicalParent(Array $caseDbRow) : bool
+    {
         if (!empty($caseDbRow['M']) && !empty($caseDbRow['D'])) {
             $comparedBadCounter = $this->compareTwoPreparedDbRecords($caseDbRow['M'], $caseDbRow['D']);
 

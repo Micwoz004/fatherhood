@@ -13,7 +13,9 @@ use League\Csv\Statement;
 
 class CsvFileValidator
 {
-    public function rowIsHeader(Array $record) {
+
+    public function rowIsHeader(Array $record) : bool
+    {
         $headers = array( 'LAB', 'Nr sprawy', 'Rola w sprawie', 'Nr próbki', 'UID' );
 
         foreach($headers as $key => $header) {
@@ -25,8 +27,10 @@ class CsvFileValidator
         return false;
     }
 
-    public function getFileHeaders(ResultSet $records) {
+    public function getFileHeaders(ResultSet $records)
+    {
         foreach ($records->getRecords() as $hkey => $headerRow) {
+
             if ($hkey == 4) { break; }
 
             if($this->rowIsHeader($headerRow)) {
@@ -34,10 +38,11 @@ class CsvFileValidator
             }
         }
 
-        return '';
+        return null;
     }
 
-    public function getQueryColumnList($alldata) {
+    public function getQueryColumnList($alldata) : array
+    {
         $arr = array(
             'cnames' => '',
             'values' => ''

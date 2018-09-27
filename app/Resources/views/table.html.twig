@@ -22,7 +22,7 @@
         $(document).ready( function() {
             $.ajax({
                 method: 'POST',
-                url: '{{ path('_main_table_ajax') }}',
+                url: '{{ path('_main_table_loader') }}',
                 beforeSend: function() { $('#wait').show(); },
                 complete: function() { $('#wait').hide(); }
             }).done(function(data) {

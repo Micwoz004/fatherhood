@@ -2,58 +2,73 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Service\DataProcessing;
 use AppBundle\Service\WidgetBuilder;
 use AppBundle\Service\DataMachine;
-use Composer\Config;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends Controller
 {
 
+    private $dbConnection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->dbConnection = $connection;
+    }
+
     /**
      * @Route("/", name="homepage")
      */
-    public function indexAction()
+    public function indexAction() : Response
     {
         return $this->render('home.html.twig');
     }
 
     /**
-     * @Route("/MainTable", name="_main_table_view")
+     * @Route("/main-table", name="_main_table_view")
      */
-    public function tableAction()
+    public function tableAction() : Response
     {
         return $this->render('table.html.twig');
     }
     
     /**
-     * @Route("/MainTableAjax", name="_main_table_ajax")
+     * @Route("/main-table-loader", name="_main_table_loader")
      */
-    public function tableActionAjax() {
+    public function tableActionLoader(Request $request) : JsonResponse
+    {
 
-        $db = $this->get('database_connection');
         $widgetBuilder = new WidgetBuilder();
 
-        try
-        {
-            $columnNames = $db->executeQuery('SELECT * FROM column_name_schema')->fetch();
+        try {
+
+            if (!$request->isMethod('POST')) {
+                throw new \Exception('This is not an AJAX request!', 403);
+            }
+
+            $columnNames = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+
             $dataMachine = new DataMachine($columnNames);
 
             $columnNames = $dataMachine->unsetEmptyColumns($columnNames);
+
             $theadTable = $widgetBuilder->dbTableThead($columnNames);
 
-            $importedData = $db->executeQuery('SELECT * FROM imported_data')->fetchAll();
+            $importedData = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
             $importedData = $dataMachine->unsetEmptyColumns($importedData);
             $tbodyTable = $widgetBuilder->dbTableRows($importedData);
 
-            return new JsonResponse([
+            return new JsonResponse(
+                [
                 'success' => true,
+                'code' => 200,
+                'message' => '',
                 'data'    => [
                     'columns' => $theadTable,
                     'rows' => $tbodyTable
@@ -66,34 +81,34 @@ class MainController extends Controller
                 'success' => false,
                 'code'    => $exception->getCode(),
                 'message' => $exception->getMessage(),
+                'data' => []
             ]);
 
         }
     }
 
-    /**
-     * @Route("/test", name="_test")
-     */
-    public function actionTest()
-    {
-        try {
-
-            $db = $this->get('database_connection');
-            $databaseColumnSchema = $db->executeQuery('SELECT * FROM column_name_schema')->fetch();
-
-            $dataMachine = new DataMachine($databaseColumnSchema);
-            $data = $db->executeQuery('SELECT * FROM imported_data')->fetchAll();
-
-            //$array = $dataMachine->unsetEmptyColumns($data);
-
-
-            //$array = $comparison->createDataArray($databaseRow);
-
-            var_dump($array);
-        } catch (DBALException $e) {
-            throw new DBALException($e->getMessage());
-        }
-    }
+//    /**
+//     * @Route("/test", name="_test")
+//     */
+//    public function actionTest()
+//    {
+//        try {
+////
+////            $databaseColumnSchema = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+////
+////            $dataMachine = new DataMachine($databaseColumnSchema);
+////            $importedData = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
+////
+////            //$array = $dataMachine->unsetEmptyColumns($data);
+////
+////
+////            //$array = $comparison->createDataArray($databaseRow);
+////
+////            var_dump($importedData);
+//        } catch (DBALException $e) {
+//            throw new DBALException($e->getMessage());
+//        }
+//    }
 
 //    /**
 //     * @Route("/get_history_file_list", name="_get_history_file_list")

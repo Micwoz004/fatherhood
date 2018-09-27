@@ -19,7 +19,7 @@ class FileUploader
         $this->targetDir = $targetDir;
     }
 
-    public function upload(UploadedFile $file)
+    public function upload(UploadedFile $file) : string
     {
         $fileName = md5(uniqid()).'.csv';
 
@@ -28,7 +28,7 @@ class FileUploader
         return $fileName;
     }
 
-    public function getTargetDir()
+    public function getTargetDir() : string
     {
         return $this->targetDir;
     }
