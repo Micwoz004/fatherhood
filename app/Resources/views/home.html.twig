@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Strona główna{% endblock %}
+
+{% block body %}
+    <style>
+        #utp-logo {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <div class="row">
+        <h1>Home</h1>
+        <div class="col-md-6">
+            <p>Witam na stronie głównej. Poniżej znajduje się instrukcja wykorzystania aplikacji:</p>
+            <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur</li>
+                <li>Lorem ipsum dolor sit amet, consectetur</li>
+                <li>Lorem ipsum dolor sit amet, consectetur</li>
+                <li>Lorem ipsum dolor sit amet, consectetur</li>
+                <li>Lorem ipsum dolor sit amet, consectetur</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <img id="utp-logo" class="img-responsive" src="http://www.utp.edu.pl/images/aktualnosci/aktualnosci_2016/godlo.png" />
+        </div>
+    </div>
+{% endblock %}

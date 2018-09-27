@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodawanie pliku{% endblock %}
+
+{% block body %}
+    <h1>Wprowadź plik z danymi</h1>
+    {% if app.flashes('error') is defined %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if app.flashes('success') is defined %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <p>Prosimy o wprowadzenie nowego pliku z danymi. Bezpośrednio po umieszczeniu go w formularzu dane zostaną załadowane do bazy a następnie przedstawione w formie wyników. Przetwarzanie danych może potrwać kilka minut.</p>
+    <hr>
+    {{ form_start(form) }}
+        {{ form_row(form.csv)|raw }}
+    {{ form_end(form) }}
+    <div class="file-loading-box">
+        <i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span>&nbsp;&nbsp;Ładowanie...</span>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        function showLoading() {
+            $('.send-file').css('display', 'none');
+            $('.file-loading-box').css('display', 'block');
+        }
+    </script>
+{% endblock %}

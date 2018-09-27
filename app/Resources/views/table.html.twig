@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dane{% endblock %}
+
+{% block body %}
+    <h1>Wprowadzone dane</h1>
+    {% if app.flashes('error') is defined %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <div class="table-responsive">
+        <table id="table" class="table table-bordered table-striped" style="white-space: nowrap">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready( function() {
+            $.ajax({
+                method: 'POST',
+                url: '{{ path('_main_table_ajax') }}',
+                beforeSend: function() { $('#wait').show(); },
+                complete: function() { $('#wait').hide(); }
+            }).done(function(data) {
+                if (data.success === true)
+                {
+                    $('#table thead').html(data['data']['columns']);
+                    $('#table tbody').html(data['data']['rows']);
+
+                    $('#table').DataTable( {
+                        ordering: true,
+                        searching: true
+                    } );
+                } else {
+                    $('#table').replaceWith('<p class="alert alert-warning">Error #' + data.code + ':' + data.message +'.</p>');
+                }
+            });
+        });
+    </script>
+{% endblock %}
