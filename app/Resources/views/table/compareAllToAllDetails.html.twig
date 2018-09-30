@@ -3,7 +3,8 @@
 {% block title %}Dane{% endblock %}
 
 {% block body %}
-    <h1>Porównanie All to All - szczegóły</h1>
+    <h1>Porównanie każdy do każdego - szczegóły</h1>
+    <hr>
     {% if app.flashes('error') is defined %}
         {% for message in app.flashes('error') %}
             <div class="alert alert-danger">{{ message }}</div>
@@ -12,7 +13,7 @@
 
     <div class="row">
         <div class="col-md-12 m-b-md">
-            <button id="recalculate-results" class="btn btn-primary">Przelicz ponownie</button>
+            <button id="recalculate-results" class="btn btn-info">Przelicz dane</button>
         </div>
     </div>
 
@@ -35,7 +36,7 @@
                                 <td>{{ cd.uid }}</td>
                                 <td>{{ cd.numberOfRelationship }}</td>
                                 <td>
-                                    <button class="btn btn-default" data-id="{{ cd.id }}">Szczegóły</button>
+                                    <button class="btn btn-default details-button" data-json="{{ cd.differentAllelUids }}" data-current-uid="{{ cd.uid }}">Szczegóły</button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -55,6 +56,21 @@
             } );
 
             $('#recalculate-results').on( 'click', areYouSure );
+
+            $('.details-button').on( 'click' , function(){
+
+                var jsonUids = $( this ).data('json');
+                var currentRowUid = $( this ).data('currentUid');
+
+                $( '.modal-title' ).html('Szczegóły rekordu UID: ' + currentRowUid );
+                $( '.modal-body' ).html(
+                    '<h5>Lista identyfikatorów spokrewnionych osób:</h5>' +
+                    '<p>' + jsonUids.join() + '</p>'
+                );
+
+                $( '#mainModal' ).modal('show');
+            });
+
         });
 
         function areYouSure()
@@ -79,9 +95,21 @@
                 {
                     alert('Podczas przeliczania wystąpił błąd. Strona zostanie za chwilę odświeżona. Error: ' + data.message );
                 }
-console.log(data);
-                //location.reload();
+
+                location.reload();
             });
+        }
+
+        function getRowDetails(rowUID)
+        {
+
+
+
+
+
+
+
+            return;
         }
 
     </script>

@@ -4,20 +4,28 @@
 
 {% block body %}
     <h1>Porównanie Matka/Dziecko/Ojciec - Szczegóły</h1>
+    <hr>
     {% if app.flashes('error') is defined %}
         {% for message in app.flashes('error') %}
             <div class="alert alert-danger">{{ message }}</div>
         {% endfor %}
     {% endif %}
+
+    <div class="row">
+        <div class="col-md-12 m-b-md">
+            <button id="recalculate-results" class="btn btn-info">Przelicz dane</button>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table id="table" class="table table-bordered" style="white-space: nowrap">
             <thead>
-            <tr>
-                <th>Lp.</th>
-                <th>Numer sprawy</th>
-                <th>Ilość odrzuceń/Uwagi</th>
-                <th>Allele odrzucone</th>
-            </tr>
+                <tr>
+                    <th>Lp.</th>
+                    <th>Numer sprawy</th>
+                    <th>Ilość odrzuceń/Uwagi</th>
+                    <th>Allele odrzucone</th>
+                </tr>
             </thead>
             <tbody>
                 {% for key, cd in comparedData %}
@@ -35,11 +43,40 @@
 
 {% block javascripts %}
     <script>
-        $(document).ready( function() {
+        $(document).ready(function(){
             $('#table').DataTable( {
                 ordering: true,
                 searching: true
             } );
+
+            $('#recalculate-results').on( 'click', areYouSure );
         });
+
+        function areYouSure()
+        {
+            var userIsSure = confirm("Czy jesteś pewien, że chcesz ponownie przeliczyć wyniki? Może to zająć dużo czasu.");
+
+            if (userIsSure) {
+                recalculateAgainAjaxCallback();
+            }
+        }
+
+        function recalculateAgainAjaxCallback()
+        {
+            $.ajax({
+                method: 'POST',
+                url: '{{ path('_compare_all_to_all_again') }}',
+                beforeSend: function() { $('#wait').show(); },
+                complete: function() { $('#wait').hide(); }
+            }).done(function(data) {
+
+                if (data.success === false)
+                {
+                    alert('Podczas przeliczania wystąpił błąd. Strona zostanie za chwilę odświeżona. Error: ' + data.message );
+                }
+
+                location.reload();
+            });
+        }
     </script>
 {% endblock %}

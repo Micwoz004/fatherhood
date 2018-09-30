@@ -21,29 +21,30 @@
     <body>
     <div class="container">
         <div class="row">
-            
-            {# NA PÓŹNIEJ
-            <div class="col-sm-3">
-                <div class="panel panel-default history-container">
-                    <div class="panel-heading">Historia plików:</div>
-                    <div class="panel-body">
-
-                    </div>
-                </div>
-            </div> #}
-            <div class="col-sm-12">
+            <div class="col-md-2">
+                <h4>Menu</h4>
                 <ul class="nav nav-tabs">
-                    <li {% if (app.request.attributes.get('_route') == 'homepage') %}class="active"{% endif %}><a href="{{ path('homepage') }}">Strona główna</a></li>
-                    <li {% if (app.request.attributes.get('_route') == '_main_table_view') %}class="active"{% endif %}><a href="{{ path('_main_table_view') }}">Wszystkie dane</a></li>
-                    <li {% if (app.request.attributes.get('_route') == '_compare_all_to_all') %}class="active"{% endif %}><a href="{{ path('_compare_all_to_all') }}">Porównaj All to All</a></li>
-                    <li {% if (app.request.attributes.get('_route') == '_compare_m_p_d') %}class="active"{% endif %}><a href="{{ path('_compare_m_p_d') }}">Porównaj MDP</a></li>
-                    <li {% if (app.request.attributes.get('_route') == '_file_index') %}class="active"{% endif %}><a href="{{ path('_file_index') }}">Nowy plik</a></li>
+                    <li {% if (app.request.attributes.get('_route') == 'homepage') %}class="active"{% endif %}>
+                        <a href="{{ path('homepage') }}">Strona główna</a>
+                    </li>
+                    <li {% if (app.request.attributes.get('_route') == '_main_table_view') %}class="active"{% endif %}>
+                        <a href="{{ path('_main_table_view') }}">Wszystkie dane</a>
+                    </li>
+                    <li {% if (app.request.attributes.get('_route') == '_compare_all_to_all') %}class="active"{% endif %}>
+                        <a href="{{ path('_compare_all_to_all') }}">Porównaj każdy do każdego</a>
+                    </li>
+                    <li {% if (app.request.attributes.get('_route') == '_compare_m_p_d') %}class="active"{% endif %}>
+                        <a href="{{ path('_compare_m_p_d') }}">Porównaj Matka/Dziecko/Pozwany</a>
+                    </li>
+                    <li {% if (app.request.attributes.get('_route') == '_file_index') %}class="active"{% endif %}>
+                        <a href="{{ path('_file_index') }}">Nowy plik</a>
+                    </li>
                 </ul>
-                <div class="col-sm-12">
-                    <div class="row">
-                        <div class="col-xs-12 main-box-container center-block">
-                            {% block body %}{% endblock %}
-                        </div>
+            </div>
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-xs-12 main-box-container center-block">
+                        {% block body %}{% endblock %}
                     </div>
                 </div>
             </div>
@@ -72,7 +73,7 @@
     </div>
 
     <!-- Loading window -->
-    <div id="wait"><p><i class="fa fa-spinner fa-spin"></i>Loading...</p></div>
+    <div id="wait"><p><i class="fa fa-spinner fa-spin"></i>Ładowanie...</p></div>
 
         <script src="{{ asset('js/jquery.min.js') }}"></script>
         <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -81,53 +82,6 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.16/b-1.4.2/b-flash-1.4.2/b-html5-1.4.2/b-print-1.4.2/fh-3.1.3/r-2.2.0/datatables.min.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/scroller/1.4.3/js/dataTables.scroller.min.js"></script>
-        <script>
-            // $( document ).ready( function() {
-            //         getFileHistory();
-            //     });
-
-            {#function loadNewFileModal(filename) {#}
-
-                {#$('.modal-title').text('Ładowanie nowego pliku');#}
-                {#$('.modal-body p').html('Po naciśnięciu przycisku \'Tak\' zostaną załadowane do bazy danych informacje z pliku:</p><ul><li>' + filename + '</li></ul> <p><b>Po wykonaniu tej czynności obecnie zapisane dane zostaną usunięte i zastąpione danymi z powyższego pliku.</b><br/><br /> Czy jesteś pewien?');#}
-                {#$('.modal-footer').html('<form method="post" action="{{ path('_load_new_file') }}" class="form-inline ">' +#}
-                        {#'<input type="hidden" name="filename" value="'+filename+'" />' +#}
-                        {#'<button type="submit" class="btn btn-primary">Tak</button>' +#}
-                        {#'<button type="button" class="btn btn-default" data-dismiss="modal">Nie</button>' +#}
-                    {#'</form>');#}
-
-                {#$('#mainModal').modal();#}
-
-            {#}#}
-
-            {#function getFileHistory() {#}
-                {#$.ajax({#}
-                    {#type: 'post',#}
-                    {#url: '{{ path('_get_history_file_list') }}',#}
-                    {#dataType: 'json',#}
-                    {#beforeSend: function () {#}
-                        {#$('.history-container .panel-body').append('<div class="history-loading-box">\n' +#}
-                            {#'            <i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><br><span>Ładowanie...</span>\n' +#}
-                            {#'        </div>');#}
-                    {#}#}
-                {#}).done( function( fileList ) {#}
-                    {#$.each(fileList, function (index, value) {#}
-                        {#$('.history-container .panel-body').append('<div class="history-row col-sm-12">' +#}
-                            {#'<div class="col-sm-10">' +#}
-                                {#'<button class="btn btn-link" onclick="loadNewFileModal(\''+value['displayUrl']+'\');" title="'+value['displayUrl']+'">'+( value['displayUrl'].length > 25 ? value['displayUrl'].substring(0, 25) + '...' : value['displayUrl'] )+'</button>' +#}
-                            {#'</div>' +#}
-                            {#'<div class="col-sm-2">' +#}
-                                {#'<button class="btn btn-xs btn-danger" onclick="">' +#}
-                                    {#'<i class="fa fa-times" aria-hidden="true"></i>' +#}
-                                {#'</button>' +#}
-                            {#'</div>' +#}
-                            {#'</div>');#}
-
-                          {#$('.history-loading-box').remove();#}
-                    {#});#}
-                {#});#}
-            {#}#}
-        </script>
         {% block javascripts %}{% endblock %}
     </body>
 </html>

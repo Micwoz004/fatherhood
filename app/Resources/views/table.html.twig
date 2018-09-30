@@ -3,12 +3,15 @@
 {% block title %}Dane{% endblock %}
 
 {% block body %}
-    <h1>Wprowadzone dane</h1>
+    <h1>Wszystkie dane</h1>
+    <hr>
+    <br />
     {% if app.flashes('error') is defined %}
         {% for message in app.flashes('error') %}
             <div class="alert alert-danger">{{ message }}</div>
         {% endfor %}
     {% endif %}
+    <br />
     <div class="table-responsive">
         <table id="table" class="table table-bordered table-striped" style="white-space: nowrap">
             <thead></thead>
@@ -33,7 +36,8 @@
 
                     $('#table').DataTable( {
                         ordering: true,
-                        searching: true
+                        searching: true,
+                        lengthMenu: [[15, 30, 50, -1], [15, 30, 50, "All"]]
                     } );
                 } else {
                     $('#table').replaceWith('<p class="alert alert-warning">Error #' + data.code + ':' + data.message +'.</p>');
