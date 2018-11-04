@@ -15,14 +15,51 @@
         <hr>
         <br /> <br />
         <div class="col-md-6">
-            <p>Witam na stronie głównej. Poniżej znajduje się instrukcja wykorzystania aplikacji:</p>
-            <ol>
-                <li>Lorem ipsum dolor sit amet, consectetur</li>
-                <li>Lorem ipsum dolor sit amet, consectetur</li>
-                <li>Lorem ipsum dolor sit amet, consectetur</li>
-                <li>Lorem ipsum dolor sit amet, consectetur</li>
-                <li>Lorem ipsum dolor sit amet, consectetur</li>
-            </ol>
+            <p>Witam na stronie głównej.</p>
+            <h2>Informacje:</h2>
+            <p>Poniżej znajdują się krótkie opisy poszczególnych podstron/modułów.</p>
+
+            <div class="col-sm-12">
+                <h3>Podstrona - "Wszystkie dane"</h3>
+                <ul>
+                    <li>Podstrona zawierające zbiór wszystkich danych zaimportowanych z pliku CSV</li>
+                    <li>Dane można filtrować, sortować oraz przeszukiwać za pomocą biblioteki JavaScript</li>
+                    <li>Obecnie znajdujące się dane w tabeli <b>(na dzień 04.11.2018)</b> to część rekordów z udostępnionego mi pliku. Nie importowałem wszystkich danych, ponieważ chciałem ułatwić proces testowania aplikacji oraz dlatego, że oryginalny plik zawiera błędy składniowe - zgodnie z ustaleniami z Profesorem Woźniakiem to osoba pracująca z aplikacją ma się przejmować prawidłowo "wyglądajacym" plikiem.</li>
+                </ul>
+            </div>
+
+            <div class="col-sm-12">
+                <h3>Podstrona - "Porównaj każdy do każdego"</h3>
+                <ul>
+                    <li>Podstrona zawiera dane pogrupowane po UID</li>
+                    <li>Dane przedstawiają porównanie każdego rekordu z każdym, który znajduje się w pliku wejściowym</li>
+                    <li>Tabela przedstawia ilość wstąpień potencjalnego pokrewieństwa zakładając brak pokrewieństwa przy 3 odrzuceniach</li>
+                    <li>Dla każdego rekordu można sprawdzić listę UID, które są potencjalnie spokrewnione ze sobą (wygląd popupu będzie w późniejszym czasie zmodyfikowany)</li>
+                    <li>Dane można przeliczyć ponownie, poprzez naciśnięcie przycisku "Przelicz dane". Zakładam konieczność ponownego przeliczenia danych jedynie po wprowadzeniu nowego pliku wejściowego</li>
+                </ul>
+            </div>
+
+            <div class="col-sm-12">
+                <h3>Podstrona - "Porównaj Matka/Dziecko/Pozwany"</h3>
+                <ul>
+                    <li>Podstrona zawiera dane pogrupowane po numerze spraw</li>
+                    <li>Jest to porównanie danych matki, dziecka oraz potencjalnego ojca</li>
+                    <li>Jeżeli w jakimś przypadku nie posiadamy kompletu osób badanych (matka, dziecko oraz potencjalny ojciec) to przy ilości odrzuceń występuje informajca "Nie dotyczy"</li>
+                    <li>W tym module aplikacja sprawdza również czy matka jest rzeczywiście biologicznym rodzicem badanego dziecka. Jeżeli matka oraz dziecko nie są spokrewnione aplikacja w kolumnie "ilość odrzuceń/uwagi" wyświetla informację "Nie dotyczy" a dana sprawa jest oznaczana kolorem czerwonym</li>
+                    <li>Dane można przeliczyć ponownie, poprzez naciśnięcie przycisku "Przelicz dane". Zakładam konieczność ponownego przeliczenia danych jedynie po wprowadzeniu nowego pliku wejściowego</li>
+                </ul>
+            </div>
+
+            <div class="col-sm-12">
+                <h3>Podstrona - "Nowy plik"</h3>
+                <ul>
+                    <li>Moduł odpowiada za importowanie nowego pliku .CSV</li>
+                    <li>Wygląd podstrony zostanie w przyszłości zmodyfikowany</li>
+                    <li>Wgrywany plik musi zawierać nazwy kolumn, tak aby aplikacja mogła prawidłowo przypisać nazwy alleli do wskazanych wartości. Nazwy kolumn muszą znaleźć się w pierwszych czterech liniach pliku</li>
+                    <li></li>
+                </ul>
+            </div>
+
         </div>
         <div class="col-md-6">
             <img id="utp-logo" class="img-responsive" src="http://www.utp.edu.pl/images/aktualnosci/aktualnosci_2016/godlo.png" />
