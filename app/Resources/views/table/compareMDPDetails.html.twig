@@ -25,6 +25,7 @@
                     <th>Numer sprawy</th>
                     <th>Ilość odrzuceń/Uwagi</th>
                     <th>Allele odrzucone</th>
+                    <th>Biologiczna matka</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                         <td>{{ cd.caseNumber }}</td>
                         <td>{{ cd.differentFatherAllelNames is empty ? 'Nie dotyczy' : cd.differentFatherAllelNames|length }}</td>
                         <td>{{ cd.differentFatherAllelNames is empty ? 'Brak' : cd.differentFatherAllelNames|join(', ') }}</td>
+                        <td>{{ cd.isMotherBiologicalParent ? 'Tak' : 'Nie' }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -65,7 +67,7 @@
         {
             $.ajax({
                 method: 'POST',
-                url: '{{ path('_compare_all_to_all_again') }}',
+                url: '{{ path('_compare_m_p_d_again') }}',
                 beforeSend: function() { $('#wait').show(); },
                 complete: function() { $('#wait').hide(); }
             }).done(function(data) {

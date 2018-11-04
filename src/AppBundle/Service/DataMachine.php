@@ -26,6 +26,7 @@ class DataMachine
 
         foreach($this->dbColumnSchema as $rowKey => $allelName)
         {
+
             if ($rowKey == self::PRIMARY_KEY_COLUMN_NAME or empty($allelName))
             {
                 continue;

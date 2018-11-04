@@ -58,8 +58,12 @@ class DataProcessingController extends Controller
                 throw new \Exception('This is not an AJAX request!', 403);
             }
 
-            $columnSchema = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+            $columnSchema = $this->dbConnection->fetchAssoc('SELECT * FROM column_name_schema');
             $dbRecords = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
+
+            if (count($columnSchema) === 1) {
+                throw new \Exception('W bazie danych znajduje się błędny schemat Alleli. Załaduj nowy schemat, aby kontynuować.');
+            }
 
             $comparison = new Comparison($columnSchema);
             $comparedRecords = $comparison->compareAllToAllDbRecords($dbRecords);
@@ -120,35 +124,61 @@ class DataProcessingController extends Controller
     /**
      * @Route("/data-processing/compare-m-p-d-again", name="_compare_m_p_d_again")
      */
-    public function compareMPDAgain() : RedirectResponse
+    public function compareMPDAgain(Request $request) : JsonResponse
     {
 
         try {
-            $columnSchema = $this->dbConnection->fetchAll('SELECT * FROM column_name_schema');
+
+            if (!$request->isMethod('POST')) {
+                throw new \Exception('This is not an AJAX request!', 403);
+            }
+
+            $columnSchema = $this->dbConnection->fetchAssoc('SELECT * FROM column_name_schema');
             $dbRecords = $this->dbConnection->fetchAll('SELECT * FROM imported_data');
+
+            if (count($columnSchema) === 1) {
+                throw new \Exception('W bazie danych znajduje się błędny schemat Alleli. Załaduj nowy schemat, aby kontynuować.');
+            }
 
             $comparison = new Comparison($columnSchema);
             $comparedData = $comparison->compareMotherChildFather($dbRecords);
+
+            $this->dbConnection->beginTransaction();
+            $this->dbConnection->exec('DELETE FROM compare_m_p_d');
 
             foreach($comparedData as $caseNumber => $data)
             {
                 $compareMPD = new CompareMPD();
                 $compareMPD->setCaseNumber($caseNumber);
+
                 $compareMPD->setDifferentFatherAllelNames(json_encode($data['differentFatherAllelNames']));
                 $compareMPD->setIsMotherBiologicalParent(($data['isMotherBiologicalParent'] ? 1 : 0));
 
                 $this->em->persist($compareMPD);
                 $this->em->flush();
-                $this->em->clear();
             }
 
-            return $this->redirect
-            (
-                $this->generateUrl('_compare_m_p_d')
-            );
+            $this->dbConnection->commit();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'code' => 200,
+                    'message' => ''
+                ]);
 
         } catch (\Exception $exception) {
-            throw new \Exception('Error: ' . $exception->getMessage());
+
+            if ($this->dbConnection->isTransactionActive()) {
+                $this->dbConnection->rollBack();
+            }
+
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage()
+                ]);
         }
     }
 }

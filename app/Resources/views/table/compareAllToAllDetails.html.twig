@@ -36,7 +36,7 @@
                                 <td>{{ cd.uid }}</td>
                                 <td>{{ cd.numberOfRelationship }}</td>
                                 <td>
-                                    <button class="btn btn-default details-button" data-json="{{ cd.differentAllelUids }}" data-current-uid="{{ cd.uid }}">Szczegóły</button>
+                                    <button class="btn btn-default details-button" data-json="{{ cd.differentAllelUids }}" data-current-uid="{{ cd.uid }}" onclick="getRowDetails( this )">Szczegóły</button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -56,20 +56,6 @@
             } );
 
             $('#recalculate-results').on( 'click', areYouSure );
-
-            $('.details-button').on( 'click' , function(){
-
-                var jsonUids = $( this ).data('json');
-                var currentRowUid = $( this ).data('currentUid');
-
-                $( '.modal-title' ).html('Szczegóły rekordu UID: ' + currentRowUid );
-                $( '.modal-body' ).html(
-                    '<h5>Lista identyfikatorów spokrewnionych osób:</h5>' +
-                    '<p>' + jsonUids.join() + '</p>'
-                );
-
-                $( '#mainModal' ).modal('show');
-            });
 
         });
 
@@ -100,17 +86,20 @@
             });
         }
 
-        function getRowDetails(rowUID)
+        function getRowDetails(buttonThis)
         {
 
+            var jsonUids = $( buttonThis ).data('json');
+            var currentRowUid = $( buttonThis ).data('currentUid');
 
+            $( '.modal-title' ).html('Szczegóły rekordu UID: ' + currentRowUid );
+            $( '.modal-body' ).html(
+                '<h5>Lista identyfikatorów spokrewnionych osób:</h5>' +
+                '<p>' + jsonUids.join() + '</p>'
+            );
 
+            $( '#mainModal' ).modal('show');
 
-
-
-
-            return;
         }
-
     </script>
 {% endblock %}

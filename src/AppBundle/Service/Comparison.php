@@ -156,7 +156,7 @@ class Comparison
             }
         }
 
-        return null;
+        return '';
     }
 
     private function isOneOfParentAllelMatch($childAllelValue, Allel $parentObject) : bool
