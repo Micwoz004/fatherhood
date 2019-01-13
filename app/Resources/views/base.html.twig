@@ -25,7 +25,10 @@
                 <h4>Menu</h4>
                 <ul class="nav nav-tabs">
                     <li {% if (app.request.attributes.get('_route') == 'homepage') %}class="active"{% endif %}>
-                        <a href="{{ path('homepage') }}">Strona główna</a>
+                        <a href="{{ path('homepage') }}">
+                            <i class="fa fa-home">&nbsp;</i>
+                            Strona główna
+                        </a>
                     </li>
                     <li {% if (app.request.attributes.get('_route') == '_main_table_view') %}class="active"{% endif %}>
                         <a href="{{ path('_main_table_view') }}">Wszystkie dane</a>
@@ -33,11 +36,20 @@
                     <li {% if (app.request.attributes.get('_route') == '_compare_all_to_all') %}class="active"{% endif %}>
                         <a href="{{ path('_compare_all_to_all') }}">Porównaj każdy do każdego</a>
                     </li>
-                    <li {% if (app.request.attributes.get('_route') == '_compare_m_p_d') %}class="active"{% endif %}>
-                        <a href="{{ path('_compare_m_p_d') }}">Porównaj Matka/Dziecko/Pozwany</a>
+                    <li {% if (app.request.attributes.get('_route') == '_compare_mdp') %}class="active"{% endif %}>
+                        <a href="{{ path('_compare_mdp') }}">Porównaj Matka/Dziecko/Pozwany</a>
                     </li>
                     <li {% if (app.request.attributes.get('_route') == '_file_index') %}class="active"{% endif %}>
-                        <a href="{{ path('_file_index') }}">Nowy plik</a>
+                        <a href="{{ path('_file_index') }}">
+                            <i class="fa fa-file">&nbsp;</i>
+                            Nowy plik
+                        </a>
+                    </li>
+                    <li {% if (app.request.attributes.get('_route') == '_settings') %}class="active"{% endif %}>
+                        <a href="{{ path('_settings') }}">
+                            <i class="fa fa-gear">&nbsp;</i>
+                            Ustawienia
+                        </a>
                     </li>
                 </ul>
             </div>

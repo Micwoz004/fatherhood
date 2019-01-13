@@ -9,7 +9,7 @@
 namespace AppBundle\Service;
 
 use League\Csv\ResultSet;
-use League\Csv\Statement;
+
 
 class CsvFileValidator
 {
@@ -42,7 +42,10 @@ class CsvFileValidator
     private $csvFileHeadersRow = array();
     private $emptyRowCounter = 0;
 
-
+    /**
+     * @param array $record
+     * @return bool
+     */
     public function rowIsHeader(Array $record) : bool
     {
         foreach( self::MAIN_COLUMN_NAMES as $key => $header ) {
@@ -52,6 +55,10 @@ class CsvFileValidator
         return false;
     }
 
+    /**
+     * @param ResultSet $records
+     * @return array
+     */
     public function getFileHeaders(ResultSet $records) : array
     {
         foreach ($records->getRecords() as $hkey => $headerRow) {
@@ -69,6 +76,9 @@ class CsvFileValidator
         return array();
     }
 
+    /**
+     * @return array
+     */
     public function prepareColumnSchemaData() : array
     {
         $i = 0;
@@ -92,16 +102,27 @@ class CsvFileValidator
         return $columnSchemaInsert;
     }
 
+    /**
+     * @param $columnName
+     * @return bool
+     */
     private function shouldStartCollectData($columnName) : bool
     {
         return $columnName == CsvFileValidator::COLUMN_NAME_OF_PERMANENT_START;
     }
 
+    /**
+     * @param $columnName
+     * @return bool
+     */
     private function shouldStopCollectData($columnName) : bool
     {
         return $columnName == CsvFileValidator::COLUMN_NAME_OF_PERMANENT_LIMIT;
     }
 
+    /**
+     * @return array
+     */
     public function prepareImportedDataColumns() : array
     {
         $preparedImportData = array();
@@ -121,6 +142,10 @@ class CsvFileValidator
         return $preparedImportData;
     }
 
+    /**
+     * @param $csvRow
+     * @return bool
+     */
     public function isRowEmpty($csvRow) : bool
     {
         $localRecordEmptyCounter = 0;
@@ -139,15 +164,22 @@ class CsvFileValidator
         return false;
     }
 
-    public function isTooManyEmptyRows()
+    /**
+     * @return bool
+     */
+    public function isTooManyEmptyRows() : bool
     {
         return ( $this->emptyRowCounter >= 3 ? true : false );
     }
 
-    public function modifyRowCharsetToUtf8($csvRow)
+    /**
+     * @param $csvRow
+     * @return array
+     */
+    public function cleanDataWithUtf8($csvRow) : array
     {
         return array_map(function($n){
-                    return iconv('windows-1252', 'UTF-8', str_replace(',', '.', $n));
+                    return iconv('windows-1252', 'UTF-8', str_replace(',', '.', trim($n, '`')));
                 }, $csvRow);
     }
 }

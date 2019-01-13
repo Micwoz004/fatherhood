@@ -49,7 +49,7 @@ class FileController extends Controller
     /**
      * @Route("/file/", name="_file_index")
      */
-    public function indexController(Request $request = null, FileUploader $fileUploader)
+    public function indexController(Request $request, FileUploader $fileUploader)
     {
 
         $form = $this->createForm(UploadFileForm::class, $this->uploadFileModel);
@@ -58,16 +58,26 @@ class FileController extends Controller
         //TODO: Wyrzucić do to serwisu
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->prepareUploadedFile($fileUploader);
+            try {
+                $this->prepareUploadedFile($fileUploader);
+            } catch (DBALException $e) {
+                $this->addFlash('error', 'Wystąpił błąd podczas zapisu danych do bazy.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Wystapił błąd podczas przetwarzania danych. Skontaktuj się z administratorem. Kod: ' . $e->getCode());
+            }
         }
 
-        return $this->render('file/uploadForm.html.twig',
-            [
+        return $this->render('file/uploadForm.html.twig', [
             'form' => $form->createView()
-            ]
-        );
+        ]);
     }
 
+    /**
+     * @param FileUploader $fileUploader
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws DBALException
+     * @throws Exception
+     */
     private function prepareUploadedFile(FileUploader $fileUploader)
     {
         $filename = $fileUploader->upload($this->uploadFileModel->getCsv());
@@ -146,7 +156,7 @@ class FileController extends Controller
 
                     $importedDataColumnNames = $this->csvFileValidator->prepareImportedDataColumns();
 
-                    $preparedCsvData = $this->csvFileValidator->modifyRowCharsetToUtf8($csvRow);
+                    $preparedCsvData = $this->csvFileValidator->cleanDataWithUtf8($csvRow);
 
                     $this->dbConnection->insert('imported_data', array_combine($importedDataColumnNames, $preparedCsvData) );
                 }

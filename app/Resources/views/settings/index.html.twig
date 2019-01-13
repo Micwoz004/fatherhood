@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ustawienia aplikacji{% endblock %}
+
+{% block body %}
+    <h1>Ustawienia systemu</h1>
+    {% if app.flashes('error') is defined %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if app.flashes('success') is defined %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="col-md-4 col-sm-12">
+        <form method="post">
+            <div class="form-group">
+                <label for="discard-after">Odrzuć osobę po:</label>
+                <input id="discard-after" class="form-control" type="number" value="{{ discardAfterValue }}" name="discard_after" placeholder="Wprowadź liczbę" />
+            </div>
+            <button type="submit" class="btn btn-primary">Zapisz</button>
+        </form>
+    </div>
+{% endblock %}

@@ -22,15 +22,16 @@ class UploadFileForm extends AbstractType
     {
         $builder
             ->add('csv', FileType::class, array(
-                'label' => 'PI test\'s results (CSV file)',
+                'label' => 'Plik zawierający wyniki (w formacie CSV)',
                 'attr' => array(
                     'class' => ''
                 )
             ))
             ->add('save', SubmitType::class, array(
-                'label' => 'Upload',
+                'label' => 'Prześlij',
                 'attr' => array(
-                    'class' => 'btn btn-primary send-file'
+                    'class' => 'btn btn-primary send-file',
+                    'style' => 'margin-top: 30px;'
                 )
             ));
     }

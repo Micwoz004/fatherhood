@@ -15,11 +15,19 @@ class DataMachine
 
     private $dbColumnSchema;
 
+    /**
+     * DataMachine constructor.
+     * @param array $dbColumnSchema
+     */
     public function __construct(Array $dbColumnSchema)
     {
         $this->dbColumnSchema = $dbColumnSchema;
     }
 
+    /**
+     * @param array $databaseRow
+     * @return array
+     */
     public function createAllelValueArray(Array $databaseRow) : array
     {
         $createdArray = array();
@@ -41,6 +49,10 @@ class DataMachine
         return $createdArray;
     }
 
+    /**
+     * @param array $databaseRecords
+     * @return array
+     */
     public function createCaseNumberRoleArray(Array $databaseRecords) : array
     {
         $CaseNumberRole = array();
@@ -53,6 +65,10 @@ class DataMachine
         return $CaseNumberRole;
     }
 
+    /**
+     * @param array $databaseRow
+     * @return array
+     */
     public function unsetEmptyColumns(Array $databaseRow) : array
     {
         if ($this->isTwoDimensionalArray($databaseRow))
@@ -65,6 +81,10 @@ class DataMachine
         }
     }
 
+    /**
+     * @param array $databaseRow
+     * @return bool
+     */
     private function isTwoDimensionalArray(Array $databaseRow) : bool
     {
         if (!empty($databaseRow[0]) and is_array($databaseRow[0]))
@@ -75,6 +95,10 @@ class DataMachine
         return false;
     }
 
+    /**
+     * @param array $databaseRow
+     * @return array
+     */
     private function iterateTwoDimensionalArrayAndUnset(Array $databaseRow) : array
     {
         foreach($databaseRow as $fKey => $firstDimensionRow)
@@ -91,6 +115,10 @@ class DataMachine
         return $databaseRow;
     }
 
+    /**
+     * @param array $databaseRow
+     * @return array
+     */
     private function iterateOneDimensionalArrayAndUnset(Array $databaseRow) : array
     {
         foreach ($databaseRow as $key => $record)

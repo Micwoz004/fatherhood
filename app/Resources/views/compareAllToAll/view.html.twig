@@ -13,7 +13,14 @@
 
     <div class="row">
         <div class="col-md-12 m-b-md">
-            <button id="recalculate-results" class="btn btn-info">Przelicz dane</button>
+            <button id="recalculate-results" class="btn btn-info pull-left">
+                <i class="fa fa-spinner">&nbsp;</i>
+                Przelicz dane
+            </button>
+            <a class="btn btn-default pull-right" href="{{ path('_compare_all_to_all_excel') }}">
+                <i class="fa fa-file-excel-o">&nbsp;</i>
+                Eksportuj do XLS
+            </a>
         </div>
     </div>
 
@@ -25,7 +32,7 @@
                         <tr>
                             <th>Lp.</th>
                             <th>UID</th>
-                            <th>Potencjalne pokrewieństwo ( x <= 3 )</th>
+                            <th>Potencjalne pokrewieństwo</th>
                             <th>Szczegóły</th>
                         </tr>
                     </thead>
@@ -95,7 +102,7 @@
             $( '.modal-title' ).html('Szczegóły rekordu UID: ' + currentRowUid );
             $( '.modal-body' ).html(
                 '<h5>Lista identyfikatorów spokrewnionych osób:</h5>' +
-                '<p>' + jsonUids.join() + '</p>'
+                '<p>' + jsonUids.join(', ') + '</p>'
             );
 
             $( '#mainModal' ).modal('show');

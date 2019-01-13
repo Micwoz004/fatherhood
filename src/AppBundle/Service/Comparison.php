@@ -8,20 +8,36 @@
 
 namespace AppBundle\Service;
 
+use Doctrine\DBAL\Connection;
+
 class Comparison
 {
-    const MAX_DIFFERENCE_COUNTER = 4;
+    private $maxDifferenceCounter;
 
     private $dbColumnSchema;
     private $dataMachine;
+    private $dbConnection;
 
-    public function __construct($dbColumnSchema)
+    /**
+     * Comparison constructor.
+     * @param $dbColumnSchema
+     * @param Connection $dbConnection
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function __construct($dbColumnSchema, Connection $dbConnection)
     {
         $this->dbColumnSchema = $dbColumnSchema;
         $this->dataMachine = new DataMachine($dbColumnSchema);
+        $this->dbConnection = $dbConnection;
+        $this->maxDifferenceCounter = $dbConnection->fetchColumn('SELECT value FROM settings WHERE name = ?', array('discard_after'), 0);
     }
 
-    public function compareTwoRawDbRecords($firstRecord, $secondRecord)
+    /**
+     * @param $firstRecord
+     * @param $secondRecord
+     * @return int
+     */
+    public function compareTwoRawDbRecords($firstRecord, $secondRecord) : int
     {
         $iteration = 1;
         $differenceCounter = 0;
@@ -45,12 +61,17 @@ class Comparison
         return $differenceCounter;
     }
 
-    public function compareTwoPreparedDbRecords($firstRecord, $secondRecord)
+    /**
+     * @param $firstRecord
+     * @param $secondRecord
+     * @return int
+     */
+    public function compareTwoPreparedDbRecords($firstRecord, $secondRecord) : int
     {
         $differenceCounter = 0;
 
         foreach($firstRecord as $aKey => $allelValues) {
-            if ($differenceCounter == self::MAX_DIFFERENCE_COUNTER) {
+            if ($differenceCounter == $this->maxDifferenceCounter) {
                 break;
             }
 
@@ -69,7 +90,12 @@ class Comparison
         return $differenceCounter;
     }
 
-    private function isDifferenceWithinTwoAllelPairs(Allel $fistAllelObject, Allel $secondAllelObject)
+    /**
+     * @param Allel $fistAllelObject
+     * @param Allel $secondAllelObject
+     * @return bool
+     */
+    private function isDifferenceWithinTwoAllelPairs(Allel $fistAllelObject, Allel $secondAllelObject) : bool
     {
         if (
             !in_array($fistAllelObject->getAllelFirstValue(), $secondAllelObject->getAllelArrayCollection()) and
@@ -82,7 +108,11 @@ class Comparison
         return false;
     }
 
-    public function compareMotherChildFather(Array $databaseRecords)
+    /**
+     * @param array $databaseRecords
+     * @return array
+     */
+    public function compareMotherChildFather(Array $databaseRecords) : array
     {
         $outputArray = array();
         $caseNumberRoleArray = $this->dataMachine->createCaseNumberRoleArray($databaseRecords);
@@ -90,16 +120,19 @@ class Comparison
         foreach($caseNumberRoleArray as $caseNumber => $caseData)
         {
             $outputArray[$caseNumber]['differentFatherAllelNames'] = array();
-            $outputArray[$caseNumber]['isMotherBiologicalParent'] = true;
+            $outputArray[$caseNumber]['comments'] = '';
+            $outputArray[$caseNumber]['isMotherBiologicalParent'] = 2;
 
             if ($this->doesRowHasThreeRoles($caseData))
             {
                 if (!$this->isMotherBiologicalParent($caseData))
                 {
-                    $outputArray[$caseNumber]['isMotherBiologicalParent'] = false;
+                    $outputArray[$caseNumber]['isMotherBiologicalParent'] = 0;
                 }
                 else
                 {
+                    $outputArray[$caseNumber]['isMotherBiologicalParent'] = 1;
+
                     foreach($caseData['D'] as $allelName => $childAllelPair)
                     {
                         $childObject = new Allel($childAllelPair, $allelName);
@@ -114,12 +147,20 @@ class Comparison
                         }
                     }
                 }
+            } else {
+                $outputArray[$caseNumber]['comments'] = 'Brak trzeciej osoby';
             }
+
+            $outputArray[$caseNumber]['differentAllelCounter'] = count($outputArray[$caseNumber]['differentFatherAllelNames']);
         }
 
         return $outputArray;
     }
 
+    /**
+     * @param array $caseNumberRole
+     * @return bool
+     */
     private function doesRowHasThreeRoles(Array $caseNumberRole) : bool
     {
         if ((!empty($caseNumberRole['M']) && !empty($caseNumberRole['D']) && !empty($caseNumberRole['P'])) && count($caseNumberRole) == 3)
@@ -130,6 +171,12 @@ class Comparison
         return false;
     }
 
+    /**
+     * @param Allel $childObject
+     * @param Allel $motherObject
+     * @param Allel $fatherObject
+     * @return string
+     */
     private function getDifferentFatherAllelName(Allel $childObject, Allel $motherObject, Allel $fatherObject) : string
     {
         if ($this->isDifferenceWithinTwoAllelPairs($childObject, $motherObject))
@@ -144,7 +191,7 @@ class Comparison
         {
             if (!$this->isOneOfParentAllelMatch($childObject->getAllelSecondValue(), $fatherObject))
             {
-                 return $childObject->getAllelName();
+                 return $childObject->getAllelName() . ' (A: ' . $childObject->getAllelSecondValue() . ')';
             }
         }
 
@@ -152,13 +199,18 @@ class Comparison
         {
             if (!$this->isOneOfParentAllelMatch($childObject->getAllelFirstValue(), $fatherObject) )
             {
-                return $childObject->getAllelName();
+                return $childObject->getAllelName() . ' (A: ' . $childObject->getAllelFirstValue() . ')';
             }
         }
 
         return '';
     }
 
+    /**
+     * @param $childAllelValue
+     * @param Allel $parentObject
+     * @return bool
+     */
     private function isOneOfParentAllelMatch($childAllelValue, Allel $parentObject) : bool
     {
         if (in_array($childAllelValue, $parentObject->getAllelArrayCollection())) {
@@ -168,6 +220,10 @@ class Comparison
         return false;
     }
 
+    /**
+     * @param array $dbRecords
+     * @return array
+     */
     public function compareAllToAllDbRecords(Array $dbRecords) : array
     {
         $outputArray = array();
@@ -183,8 +239,8 @@ class Comparison
 
                 $differenceCounter = $this->compareTwoRawDbRecords($firstCaseDbRow, $secondCaseDbRow);
 
-                if ($differenceCounter < self::MAX_DIFFERENCE_COUNTER) {
-                    $differenceAllelUids[] = $secondCaseDbRow['UID'] . '('.$differenceCounter.')';
+                if ($differenceCounter < $this->maxDifferenceCounter) {
+                    $differenceAllelUids[] = $secondCaseDbRow['UID'] . ' ('.$differenceCounter.')';
                 }
             }
 
@@ -198,12 +254,16 @@ class Comparison
         return $outputArray;
     }
 
+    /**
+     * @param array $caseDbRow
+     * @return bool
+     */
     public function isMotherBiologicalParent(Array $caseDbRow) : bool
     {
         if (!empty($caseDbRow['M']) && !empty($caseDbRow['D'])) {
             $comparedBadCounter = $this->compareTwoPreparedDbRecords($caseDbRow['M'], $caseDbRow['D']);
 
-            if ($comparedBadCounter >= 0 && $comparedBadCounter < self::MAX_DIFFERENCE_COUNTER) {
+            if ($comparedBadCounter >= 0 && $comparedBadCounter < $this->maxDifferenceCounter) {
                 return true;
             }
         }

@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="compare_m_p_d")
  */
-class CompareMPD
+class CompareMDP
 {
 
     /**
@@ -35,9 +35,19 @@ class CompareMPD
     private $differentFatherAllelNames;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="integer")
+     */
+    private $differentAllelCounter;
+
+    /**
+     * @ORM\Column(type="integer")
      */
     private $isMotherBiologicalParent;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $comments;
 
     /**
      * @return mixed
@@ -74,6 +84,22 @@ class CompareMPD
     /**
      * @return mixed
      */
+    public function getDifferentAllelCounter()
+    {
+        return $this->differentAllelCounter;
+    }
+
+    /**
+     * @param mixed $differentAllelCounter
+     */
+    public function setDifferentAllelCounter($differentAllelCounter)
+    {
+        $this->differentAllelCounter = $differentAllelCounter;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getisMotherBiologicalParent()
     {
         return $this->isMotherBiologicalParent;
@@ -85,6 +111,22 @@ class CompareMPD
     public function setIsMotherBiologicalParent($isMotherBiologicalParent)
     {
         $this->isMotherBiologicalParent = $isMotherBiologicalParent;
+    }
+
+    /**
+     * @param mixed
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+    /**
+     * @param $comments
+     */
+    public function setComments($comments)
+    {
+        $this->comments = $comments;
     }
 
     /**
